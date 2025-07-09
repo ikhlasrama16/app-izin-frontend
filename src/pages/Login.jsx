@@ -15,6 +15,8 @@ export default function Login() {
         password,
       });
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("email", JSON.stringify(res.data.email));
       navigate("/dashboard");
     } catch (err) {
       alert("Login gagal. Cek email dan password kamu.");

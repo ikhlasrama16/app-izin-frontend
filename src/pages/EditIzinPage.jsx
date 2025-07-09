@@ -11,10 +11,23 @@ export default function EditIzinPage() {
   const [loading, setLoading] = useState(true);
 
   const fetchIzin = async () => {
-    const res = await api.get("/izin");
-    const found = res.data.find((i) => i._id === id);
-    setIzin(found);
-    setLoading(false);
+    try {
+      const res = await api.get("/izin");
+      const found = res.data.find((i) => i._id === id);
+
+      if (found) {
+        setIzin({
+          ...found,
+          tanggalMulai: moment(found.tanggalMulai).format("YYYY-MM-DD"),
+          tanggalSelesai: moment(found.tanggalSelesai).format("YYYY-MM-DD"),
+        });
+      }
+
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -23,11 +36,17 @@ export default function EditIzinPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!izin.jenis || !izin.tanggalMulai || !izin.tanggalSelesai) {
+      return alert("Semua field wajib diisi");
+    }
+
     if (moment(izin.tanggalMulai).isAfter(izin.tanggalSelesai)) {
       return alert(
         "Tanggal mulai tidak boleh lebih besar dari tanggal selesai"
       );
     }
+
     try {
       await api.patch(`/izin/${id}`, {
         jenis: izin.jenis,
@@ -35,68 +54,92 @@ export default function EditIzinPage() {
         tanggalSelesai: izin.tanggalSelesai,
         keterangan: izin.keterangan,
       });
+
       alert("Izin berhasil diperbarui");
       navigate("/dashboard");
     } catch (err) {
-      alert("Gagal mengupdate izin");
+      console.error(err.response?.data || err.message); // log detail
+      alert(err.response?.data?.message || "Gagal mengupdate izin");
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (!izin) return <p>Izin tidak ditemukan</p>;
+  if (loading) return <p className="p-6">Loading...</p>;
+  if (!izin) return <p className="p-6 text-red-500">Izin tidak ditemukan</p>;
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-bold mb-4">Edit Izin</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label>Jenis Izin</label>
-          <select
-            className="border w-full p-2"
-            value={izin.jenis}
-            onChange={(e) => setIzin({ ...izin, jenis: e.target.value })}
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-xl">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Edit Izin</h1>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Jenis Izin
+            </label>
+            <select
+              value={izin.jenis}
+              onChange={(e) => setIzin({ ...izin, jenis: e.target.value })}
+              className="border border-gray-300 w-full p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Pilih Jenis</option>
+              <option value="cuti">Cuti</option>
+              <option value="sakit">Sakit</option>
+              <option value="libur">Izin Pribadi</option>
+              <option value="Dinas Luar">Dinas Luar</option>
+            </select>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="w-1/2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tanggal Mulai
+              </label>
+              <input
+                type="date"
+                value={izin.tanggalMulai}
+                onChange={(e) =>
+                  setIzin({ ...izin, tanggalMulai: e.target.value })
+                }
+                className="border border-gray-300 w-full p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div className="w-1/2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tanggal Selesai
+              </label>
+              <input
+                type="date"
+                value={izin.tanggalSelesai}
+                onChange={(e) =>
+                  setIzin({ ...izin, tanggalSelesai: e.target.value })
+                }
+                className="border border-gray-300 w-full p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Keterangan (opsional)
+            </label>
+            <textarea
+              value={izin.keterangan}
+              onChange={(e) => setIzin({ ...izin, keterangan: e.target.value })}
+              className="border border-gray-300 w-full p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows="3"
+              placeholder="Tulis keterangan tambahan..."
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-semibold shadow"
           >
-            <option value="Cuti">Cuti</option>
-            <option value="Sakit">Sakit</option>
-            <option value="Izin Pribadi">Izin Pribadi</option>
-            <option value="Dinas Luar">Dinas Luar</option>
-          </select>
-        </div>
-        <div>
-          <label>Tanggal Mulai</label>
-          <input
-            type="date"
-            className="border w-full p-2"
-            value={izin.tanggalMulai}
-            onChange={(e) => setIzin({ ...izin, tanggalMulai: e.target.value })}
-          />
-        </div>
-        <div>
-          <label>Tanggal Selesai</label>
-          <input
-            type="date"
-            className="border w-full p-2"
-            value={izin.tanggalSelesai}
-            onChange={(e) =>
-              setIzin({ ...izin, tanggalSelesai: e.target.value })
-            }
-          />
-        </div>
-        <div>
-          <label>Keterangan</label>
-          <textarea
-            className="border w-full p-2"
-            value={izin.keterangan}
-            onChange={(e) => setIzin({ ...izin, keterangan: e.target.value })}
-          />
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Update
-        </button>
-      </form>
+            Update Izin
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

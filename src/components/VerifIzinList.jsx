@@ -44,9 +44,9 @@ export default function VerifIzinList() {
     }
   };
 
-  const filteredList = izinList.filter((izin) =>
-    filter === "all" ? true : izin.status === filter
-  );
+  const filteredList = izinList.filter((izin) => {
+    return filter === "all" || izin.status === filter;
+  });
 
   useEffect(() => {
     fetch();
