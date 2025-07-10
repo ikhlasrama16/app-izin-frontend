@@ -30,10 +30,12 @@ export default function ProfilePage() {
         newPassword,
       });
 
-      alert("Password berhasil diubah. Silakan login kembali.");
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      Navigate("/login");
+      toast.success("Password berhasil diubah. Silakan login kembali.");
+      setTimeout(() => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/login");
+      }, 1500);
 
       return; // ⬅️ Ini penting, supaya tidak lanjut
     } catch (err) {

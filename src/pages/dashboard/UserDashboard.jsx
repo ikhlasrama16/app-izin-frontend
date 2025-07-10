@@ -6,6 +6,7 @@ import { statusColor, formatStatus } from "../../utils/status";
 import DetailIzinModal from "../../components/DetailIzinModal";
 import { HiChatBubbleLeft } from "react-icons/hi2";
 import { Link, useNavigate } from "react-router-dom";
+import HeaderUser from "../../components/HeaderUser";
 
 export default function UserDashboard({ user }) {
   const [izinList, setIzinList] = useState([]);
@@ -32,39 +33,36 @@ export default function UserDashboard({ user }) {
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Hi, {user.name}</h2>
-
-          {/* Tombol Profil & Logout */}
-          <div className="space-x-2">
-            <button
-              onClick={() => navigate("/profil")}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded-md"
-            >
-              Profil
-            </button>
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md"
-            >
-              Logout
-            </button>
-          </div>
+          <HeaderUser navigate={navigate} handleLogout={handleLogout} />
         </div>
         {/* Tombol Ajukan */}
         <div className="flex justify-end">
-          <Link
-            to="/ajukan-izin"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-5 rounded-md shadow"
-          >
-            + Ajukan Izin
-          </Link>
+          {user?.isVerified ? (
+            <Link
+              to="/ajukan-izin"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-5 rounded-md shadow"
+            >
+              + Ajukan Izin
+            </Link>
+          ) : (
+            <div
+              className="bg-gray-300 text-gray-500 font-medium py-2 px-5 rounded-md shadow cursor-not-allowed"
+              title="Akun Anda belum diverifikasi"
+            >
+              + Ajukan Izin
+            </div>
+          )}
         </div>
+        {!user?.isVerified && (
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-3 rounded-md mb-4">
+            Akun Anda <span className="font-semibold">belum diverifikasi</span>.
+            Anda tidak dapat mengajukan izin sampai verifikasi dilakukan oleh
+            verifikator.
+          </div>
+        )}
 
         {/* Riwayat */}
         <div>
-          <h2 className="font-semibold text-lg text-gray-700 mb-3">
-            Riwayat Izin
-          </h2>
-
           {izinList.length === 0 ? (
             <p className="text-gray-500 text-sm py-5">
               Belum ada pengajuan izin

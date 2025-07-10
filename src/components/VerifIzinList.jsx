@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import moment from "moment";
-import { HiUser, HiCalendar } from "react-icons/hi";
+import { HiCalendar, HiOutlineChat } from "react-icons/hi";
 
 export default function VerifIzinList() {
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
   const [izinList, setIzinList] = useState([]);
   const [filter, setFilter] = useState("all");
   const [showModal, setShowModal] = useState(false);
@@ -31,141 +33,147 @@ export default function VerifIzinList() {
 
   const submitStatus = async () => {
     if (!komentar.trim()) return alert("Komentar wajib diisi");
-
     try {
       await api.patch(`/verif/izin/${selectedIzinId}`, {
         status: selectedStatus,
         komentar,
       });
       setShowModal(false);
-      fetch(); // refresh list
+      fetch();
     } catch (err) {
       alert(err.response?.data?.message || "Gagal mengubah status");
     }
   };
 
-  const filteredList = izinList.filter((izin) => {
-    return filter === "all" || izin.status === filter;
-  });
-
   useEffect(() => {
     fetch();
   }, []);
 
+  const filteredList = izinList.filter((izin) => {
+    return filter === "all" || izin.status === filter;
+  });
+
+  const inisial = user?.name?.charAt(0)?.toUpperCase() || "?";
+
   return (
-    <div className="p-4">
-      <h2 className="text-lg font-semibold mb-3">Daftar Izin Masuk</h2>
+    <div className="min-h-screen py-8 px-4">
+      <div className="max-w-3xl mx-auto">
+        {/* Filter */}
+        <div className="mb-4">
+          <h2 className="text-xl font-bold mb-4">List Izin</h2>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="w-full border rounded p-2 mb-4"
+          >
+            <option value="all">Semua</option>
+            <option value="submitted">Belum diproses</option>
+            {STATUS_UI.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      {/* Filter Dropdown */}
-      <select
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        className="mb-4 border p-2 rounded w-full sm:w-60"
-      >
-        <option value="all">Semua</option>
-        <option value="submitted">Belum diproses</option>
-        {STATUS_UI.map((s) => (
-          <option key={s.value} value={s.value}>
-            {s.label}
-          </option>
-        ))}
-      </select>
-
-      {/* Card View */}
-      <div className="space-y-3">
-        {filteredList.map((izin) => (
-          <div key={izin._id} className="bg-white shadow p-4 rounded-md border">
-            <div className="flex items-center gap-2 text-blue-700 text-sm mb-1">
-              <HiUser />
-              {izin.user?.name}
-            </div>
-            <div className="flex items-center gap-2 text-gray-600 text-sm mb-1">
-              <HiCalendar />
-              {moment(izin.tanggalMulai).format("DD MMM")} →{" "}
-              {moment(izin.tanggalSelesai).format("DD MMM")}
-            </div>
-            <div className="text-sm font-medium mb-1 text-gray-800">
-              Jenis Izin: {izin.jenis}
-            </div>
-
-            {/* Keterangan dari user */}
-            {izin.keterangan && (
-              <div className="text-sm text-gray-700 mb-1">
-                <span className="font-semibold">Keterangan:</span>{" "}
-                {izin.keterangan}
+        {/* List Izin */}
+        <div className="space-y-4">
+          {filteredList.map((izin) => (
+            <div key={izin._id} className="bg-white p-4 rounded-md shadow-sm">
+              <div className="text-sm text-blue-700 font-medium mb-1">
+                {izin.user?.name}
               </div>
-            )}
-
-            {/* Komentar dari verifikator */}
-            {izin.komentarVerifikator && (
-              <div className="text-sm text-gray-600 italic mb-1">
-                <span className="font-semibold">Komentar Verifikator:</span>{" "}
-                {izin.komentarVerifikator}
+              <div className="flex items-center text-sm text-gray-600 mb-1">
+                <HiCalendar className="mr-1" />
+                {moment(izin.tanggalMulai).format("dddd, DD MMM YYYY")} →{" "}
+                {moment(izin.tanggalSelesai).format("DD MMM")}
               </div>
-            )}
-
-            {/* Status */}
-            <div
-              className={`text-sm font-semibold mb-2 ${
-                izin.status === "accepted"
-                  ? "text-green-600"
-                  : izin.status === "rejected"
-                  ? "text-red-600"
-                  : izin.status === "revised"
-                  ? "text-yellow-600"
-                  : "text-gray-600"
-              }`}
-            >
-              Status: {izin.status}
-            </div>
-
-            {/* Tombol Aksi */}
-            <div className="flex flex-wrap gap-2">
-              {STATUS_UI.map((s) => (
-                <button
-                  key={s.value}
-                  disabled={["accepted", "rejected"].includes(izin.status)}
-                  className={`text-white px-3 py-1 rounded text-sm ${
-                    s.color === "green"
-                      ? "bg-green-600"
-                      : s.color === "red"
-                      ? "bg-red-600"
-                      : "bg-yellow-500"
-                  } disabled:opacity-40`}
-                  onClick={() => handleStatus(izin._id, s.value)}
+              <div className="text-sm text-gray-800 mb-1">
+                <span className="font-semibold">Jenis Izin:</span> {izin.jenis}
+              </div>
+              {izin.keterangan && (
+                <div className="text-sm text-gray-800 mb-1 flex items-start">
+                  <HiOutlineChat className="mr-1 mt-0.5" />
+                  {izin.keterangan}
+                </div>
+              )}
+              {izin.komentarVerifikator && (
+                <div className="text-sm italic text-gray-600 mb-1">
+                  <span className="font-semibold">Komentar Verifikator:</span>{" "}
+                  {izin.komentarVerifikator}
+                </div>
+              )}
+              <div className="text-sm font-semibold mb-2">
+                Status:{" "}
+                <span
+                  className={`${
+                    izin.status === "accepted"
+                      ? "text-green-600"
+                      : izin.status === "rejected"
+                      ? "text-red-600"
+                      : izin.status === "revised"
+                      ? "text-yellow-600"
+                      : "text-gray-600"
+                  }`}
                 >
-                  {s.label}
-                </button>
-              ))}
+                  {izin.status === "accepted"
+                    ? "Diterima"
+                    : izin.status === "rejected"
+                    ? "Ditolak"
+                    : izin.status === "revised"
+                    ? "Revisi"
+                    : izin.status}
+                </span>
+              </div>
+
+              {/* Aksi */}
+              <div className="flex flex-wrap gap-2">
+                {STATUS_UI.map((s) => (
+                  <button
+                    key={s.value}
+                    disabled={["accepted", "rejected"].includes(izin.status)}
+                    onClick={() => handleStatus(izin._id, s.value)}
+                    className={`text-white px-3 py-1 rounded text-sm ${
+                      s.color === "green"
+                        ? "bg-green-600 hover:bg-green-700"
+                        : s.color === "red"
+                        ? "bg-red-600 hover:bg-red-700"
+                        : "bg-yellow-500 hover:bg-yellow-600"
+                    } disabled:opacity-40`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Modal Komentar */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-[90%] max-w-md">
-            <h3 className="font-bold text-lg mb-3 capitalize">
+          <div className="bg-white p-6 rounded-md shadow-md w-full max-w-sm space-y-4">
+            <h2 className="text-lg font-bold text-center capitalize">
               Komentar untuk {selectedStatus}
-            </h3>
+            </h2>
             <textarea
-              className="w-full border p-2 rounded mb-4"
-              placeholder="Masukkan komentar..."
+              className="w-full border rounded px-3 py-2"
               rows="4"
+              placeholder="Masukkan komentar..."
               value={komentar}
               onChange={(e) => setKomentar(e.target.value)}
             />
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 border rounded"
+                className="px-4 py-2 border rounded text-gray-600"
               >
                 Batal
               </button>
               <button
                 onClick={submitStatus}
-                className="px-4 py-2 bg-green-600 text-white rounded"
+                className="px-4 py-2 bg-blue-600 text-white rounded"
               >
                 Kirim
               </button>
