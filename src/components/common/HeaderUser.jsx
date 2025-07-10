@@ -6,7 +6,6 @@ export default function HeaderUser({ navigate, handleLogout }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef();
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {

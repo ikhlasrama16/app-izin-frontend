@@ -27,8 +27,8 @@ export default function AdminDashboard({ user }) {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); // hapus token
-    navigate("/login"); // kembali ke halaman login
+    localStorage.removeItem("token");
+    navigate("/login");
   };
 
   return (

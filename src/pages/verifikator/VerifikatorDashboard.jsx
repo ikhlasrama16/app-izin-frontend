@@ -5,7 +5,7 @@ import HeaderUser from "../../components/common/HeaderUser";
 import { useNavigate } from "react-router-dom";
 
 export default function VerifikatorDashboard({ user }) {
-  const [activeTab, setActiveTab] = useState("user"); // 'user' | 'izin'
+  const [activeTab, setActiveTab] = useState("user");
   const navigate = useNavigate();
 
   const getRoleLabel = (role) => {

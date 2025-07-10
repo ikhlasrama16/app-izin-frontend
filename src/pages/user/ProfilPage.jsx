@@ -39,7 +39,7 @@ export default function ProfilePage() {
         navigate("/login");
       }, 1500);
 
-      return; // ⬅️ Ini penting, supaya tidak lanjut
+      return;
     } catch (err) {
       showError(err.response?.data?.message || "Gagal mengubah password");
     }

@@ -26,7 +26,7 @@ export default function DetailIzinModal({ izin, onClose }) {
         },
       });
       showSuccess("Izin berhasil dibatalkan");
-      onClose(true); // trigger refresh
+      onClose(true);
     } catch (err) {
       showError("Gagal membatalkan izin");
     }
@@ -42,13 +42,12 @@ export default function DetailIzinModal({ izin, onClose }) {
         },
       });
       showSuccess("Izin berhasil dihapus");
-      onClose(true); // refresh list
+      onClose(true);
     } catch (err) {
       showError("Gagal menghapus izin");
     }
   };
 
-  // Menutup modal jika klik di luar konten modal
   useEffect(() => {
     const handleOutsideClick = (e) => {
       if (e.target.id === "modal-overlay") {
