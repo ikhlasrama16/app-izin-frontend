@@ -60,7 +60,7 @@ export default function EditIzinPage() {
       showSuccess("Izin berhasil diperbarui");
       navigate("/dashboard");
     } catch (err) {
-      console.error(err.response?.data || err.message); // log detail
+      console.error(err.response?.data || err.message);
       showError(err.response?.data?.message || "Gagal mengupdate izin");
     }
   };
