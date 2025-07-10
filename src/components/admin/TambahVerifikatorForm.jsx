@@ -3,11 +3,13 @@ import { useState } from "react";
 import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import useToast from "../../hooks/useToast";
 
 export default function TambahVerifikatorForm({ onSuccess }) {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -18,12 +20,12 @@ export default function TambahVerifikatorForm({ onSuccess }) {
     setLoading(true);
     try {
       await api.post("/admin/verifikator", form);
-      toast.success("Berhasil menambahkan verifikator");
+      showSuccess("Berhasil menambahkan verifikator");
       setForm({ name: "", email: "", password: "" });
       onSuccess?.();
       navigate("/dashboard");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Gagal menambahkan");
+      showError(err.response?.data?.message || "Gagal menambahkan");
     } finally {
       setLoading(false);
     }

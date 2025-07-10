@@ -3,10 +3,12 @@ import { useEffect } from "react";
 import moment from "moment";
 import "moment/locale/id";
 import toast from "react-hot-toast";
+import useToast from "../../hooks/useToast";
 moment.locale("id");
 
 export default function DetailIzinModal({ izin, onClose }) {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
 
   const bolehEdit = izin.status === "submitted" || izin.status === "revised";
   const handleEdit = () => {
@@ -23,10 +25,10 @@ export default function DetailIzinModal({ izin, onClose }) {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      toast.success("Izin berhasil dibatalkan");
+      showSuccess("Izin berhasil dibatalkan");
       onClose(true); // trigger refresh
     } catch (err) {
-      toast.error("Gagal membatalkan izin");
+      showError("Gagal membatalkan izin");
     }
   };
 
@@ -39,10 +41,10 @@ export default function DetailIzinModal({ izin, onClose }) {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      toast.success("Izin berhasil dihapus");
+      showSuccess("Izin berhasil dihapus");
       onClose(true); // refresh list
     } catch (err) {
-      toast.error("Gagal menghapus izin");
+      showError("Gagal menghapus izin");
     }
   };
 

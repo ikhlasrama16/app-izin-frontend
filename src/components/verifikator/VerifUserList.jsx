@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../../services/api";
 import { FaCheckCircle, FaUserAlt } from "react-icons/fa";
 import FilterTabs from "../../components/common/FilterTabs";
-import toast from "react-hot-toast";
+import useToast from "../../hooks/useToast";
 
 const STATUS_OPTIONS = [
   { label: "Semua status", value: "all" },
@@ -12,6 +12,7 @@ const STATUS_OPTIONS = [
 export default function VerifUserList() {
   const [userList, setUserList] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const { showError } = useToast();
 
   const fetchUsers = async () => {
     try {
@@ -22,7 +23,7 @@ export default function VerifUserList() {
       const res = await api.get(`/verif/users${query}`);
       setUserList(res.data);
     } catch (err) {
-      toast.error("Gagal mengambil data user");
+      showError("Gagal mengambil data user");
     }
   };
 
@@ -33,7 +34,7 @@ export default function VerifUserList() {
       });
       fetchUsers();
     } catch (err) {
-      toast.error("Gagal memverifikasi user");
+      showError("Gagal memverifikasi user");
     }
   };
 

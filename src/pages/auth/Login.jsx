@@ -1,12 +1,13 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import useToast from "../../hooks/useToast";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { showError } = useToast();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -20,7 +21,7 @@ export default function Login() {
       localStorage.setItem("email", JSON.stringify(res.data.email));
       navigate("/dashboard");
     } catch (err) {
-      toast.error("Login gagal. Cek email dan password kamu.");
+      showError("Login gagal. Cek email dan password kamu.");
     }
   };
 

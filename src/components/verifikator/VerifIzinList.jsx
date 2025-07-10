@@ -3,8 +3,8 @@ import api from "../../services/api";
 import moment from "moment";
 import { HiCalendar, HiOutlineChat } from "react-icons/hi";
 import FilterTabs from "../../components/common/FilterTabs";
-import toast from "react-hot-toast";
 import useFetch from "../../hooks/useFetch";
+import useToast from "../../hooks/useToast";
 
 const STATUS_OPTION = [
   { label: "Semua", value: "all" },
@@ -21,6 +21,7 @@ export default function VerifIzinList() {
   const [selectedIzinId, setSelectedIzinId] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState();
   const [komentar, setKomentar] = useState("");
+  const { showSuccess, showError, showWarning } = useToast();
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Gagal memuat data</p>;
@@ -33,7 +34,7 @@ export default function VerifIzinList() {
   };
 
   const submitStatus = async () => {
-    if (!komentar.trim()) return toast("Komentar wajib diisi");
+    if (!komentar.trim()) return showWarning("Komentar wajib diisi");
     try {
       await api.patch(`/verif/izin/${selectedIzinId}`, {
         status: selectedStatus,
@@ -42,7 +43,7 @@ export default function VerifIzinList() {
       setShowModal(false);
       fetch();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Gagal mengubah status");
+      showError(err.response?.data?.message || "Gagal mengubah status");
     }
   };
 

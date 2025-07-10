@@ -1,7 +1,7 @@
 import { useState } from "react";
 import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import useToast from "../../hooks/useToast";
 
 export default function ProfilePage() {
   const storedUser = localStorage.getItem("user");
@@ -11,6 +11,7 @@ export default function ProfilePage() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const navigate = useNavigate();
+  const { showSuccess, showError, showWarning } = useToast();
 
   if (!user) {
     return (
@@ -22,7 +23,7 @@ export default function ProfilePage() {
 
   const handlePasswordChange = async () => {
     if (!oldPassword || !newPassword) {
-      return toast("Semua field harus diisi");
+      return showWarning("Semua field harus diisi");
     }
 
     try {
@@ -31,7 +32,7 @@ export default function ProfilePage() {
         newPassword,
       });
 
-      toast.success("Password berhasil diubah. Silakan login kembali.");
+      showSuccess("Password berhasil diubah. Silakan login kembali.");
       setTimeout(() => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
@@ -40,7 +41,7 @@ export default function ProfilePage() {
 
       return; // ⬅️ Ini penting, supaya tidak lanjut
     } catch (err) {
-      toast.error(err.response?.data?.message || "Gagal mengubah password");
+      showError(err.response?.data?.message || "Gagal mengubah password");
     }
   };
 

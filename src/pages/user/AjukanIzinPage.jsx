@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import moment from "moment";
-import toast from "react-hot-toast";
+import useToast from "../../hooks/useToast";
 
 export default function AjukanIzinPage() {
   const [jenis, setJenis] = useState("");
   const [tanggalMulai, setTanggalMulai] = useState("");
   const [tanggalSelesai, setTanggalSelesai] = useState("");
   const [keterangan, setKeterangan] = useState("");
+  const { showSuccess, showError, showWarning } = useToast();
 
   const navigate = useNavigate();
 
@@ -16,11 +17,11 @@ export default function AjukanIzinPage() {
     e.preventDefault();
 
     if (!jenis || !tanggalMulai || !tanggalSelesai) {
-      return toast("Semua field wajib diisi");
+      return showWarning("Semua field wajib diisi");
     }
 
     if (moment(tanggalMulai).isAfter(tanggalSelesai)) {
-      return toast(
+      return showWarning(
         "Tanggal mulai tidak boleh lebih besar dari tanggal selesai"
       );
     }
@@ -33,11 +34,11 @@ export default function AjukanIzinPage() {
         keterangan,
       });
 
-      toast.success("Izin berhasil diajukan");
+      showSuccess("Izin berhasil diajukan");
       navigate("/dashboard");
     } catch (error) {
       console.error(error.response?.data);
-      toast.error(error.response?.data?.message || "Gagal mengajukan izin");
+      showError(error.response?.data?.message || "Gagal mengajukan izin");
     }
   };
 

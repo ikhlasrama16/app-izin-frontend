@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import toast from "react-hot-toast";
+import useToast from "../../hooks/useToast";
 
 const ROLE_OPTIONS = ["all", "user", "verifikator", "admin"];
 
 export default function AdminUserList() {
   const [users, setUsers] = useState([]);
   const [selectedRole, setSelectedRole] = useState("all");
+  const [resetUserId, setResetUserId] = useState(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [showModal, setShowModal] = useState(false);
+
+  const { showSuccess, showError } = useToast();
 
   const fetchUsers = async () => {
     try {
@@ -14,7 +20,7 @@ export default function AdminUserList() {
       const res = await api.get(`/admin/users${query}`);
       setUsers(res.data);
     } catch (err) {
-      toast.error("Gagal mengambil data user");
+      showError("Gagal mengambil data user");
     }
   };
 
@@ -26,10 +32,10 @@ export default function AdminUserList() {
     if (!confirm("Yakin ingin promote user ini jadi verifikator?")) return;
     try {
       await api.patch(`/admin/users/${id}/role`, { role: "verifikator" });
-      toast.success("User berhasil dipromosikan");
+      showSuccess("User berhasil dipromosikan");
       fetchUsers();
     } catch (err) {
-      toast.error("Gagal promote user");
+      showError("Gagal promote user");
     }
   };
 
@@ -38,9 +44,28 @@ export default function AdminUserList() {
     if (!newPassword) return;
     try {
       await api.patch(`/admin/users/${id}/password`, { newPassword });
-      toast.success("Password berhasil di-reset");
+      showSuccess("Password berhasil di-reset");
     } catch (err) {
-      toast.error("Gagal reset password");
+      showError("Gagal reset password");
+    }
+  };
+
+  const openResetModal = (userId) => {
+    setResetUserId(userId);
+    setNewPassword("");
+    setShowModal(true);
+  };
+
+  const handleResetSubmit = async () => {
+    if (!newPassword.trim()) return showError("Password tidak boleh kosong");
+    try {
+      await api.patch(`/admin/users/${resetUserId}/password`, {
+        newPassword,
+      });
+      showSuccess("Password berhasil di-reset");
+      setShowModal(false);
+    } catch (err) {
+      showError("Gagal reset password");
     }
   };
 
@@ -122,7 +147,7 @@ export default function AdminUserList() {
 
                     {/* 🔒 RESET PASSWORD (kanan) */}
                     <button
-                      onClick={() => handleReset(user._id)}
+                      onClick={() => openResetModal(user._id)}
                       className="bg-red-100 hover:bg-red-200 text-red-700 px-2 py-1 rounded text-xs font-semibold"
                     >
                       🔒 Reset
@@ -140,6 +165,41 @@ export default function AdminUserList() {
             )}
           </tbody>
         </table>
+        {showModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded shadow-lg p-6 w-80">
+              <h2 className="text-lg font-bold mb-1">Reset Password</h2>
+              <p className="text-sm text-gray-600 mb-3">
+                User:{" "}
+                <span className="font-semibold text-gray-800">
+                  {users.find((u) => u._id === resetUserId)?.name || "Pengguna"}
+                </span>
+              </p>
+
+              <input
+                type="text"
+                placeholder="Password baru"
+                className="w-full border px-3 py-2 rounded mb-4"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-sm"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleResetSubmit}
+                  className="px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                >
+                  Simpan
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

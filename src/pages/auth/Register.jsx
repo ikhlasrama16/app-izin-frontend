@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import useToast from "../../hooks/useToast";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -9,6 +9,8 @@ export default function Register() {
     email: "",
     password: "",
   });
+
+  const { showSuccess, showError } = useToast();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -19,10 +21,10 @@ export default function Register() {
     e.preventDefault();
     try {
       await axios.post("http://localhost:5000/api/auth/register", form);
-      toast.success("Pendaftaran berhasil. Silakan login.");
+      showSuccess("Pendaftaran berhasil. Silakan login.");
       navigate("/login");
     } catch (err) {
-      toast.error("Pendaftaran gagal.");
+      showError("Pendaftaran gagal.");
     }
   };
 
