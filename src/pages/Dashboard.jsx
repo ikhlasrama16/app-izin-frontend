@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
-import VerifikatorDashboard from "./dashboard/VerifikatorDashboard";
-import UserDashboard from "./dashboard/UserDashboard";
-import AdminDashboard from "./dashboard/adminDashboard";
+import VerifikatorDashboard from "./verifikator/VerifikatorDashboard";
+import UserDashboard from "./user/UserDashboard";
+import AdminDashboard from "./admin/AdminDashboard";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);

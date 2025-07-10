@@ -1,23 +1,25 @@
 import { useEffect, useState } from "react";
-import api from "../services/api";
+import api from "../../services/api";
 import moment from "moment";
 import { HiCalendar, HiOutlineChat } from "react-icons/hi";
+import FilterTabs from "../../components/common/FilterTabs";
+import toast from "react-hot-toast";
+
+const STATUS_OPTION = [
+  { label: "Semua", value: "all" },
+  { label: "Diterima", value: "accepted", color: "green" },
+  { label: "Ditolak", value: "rejected", color: "red" },
+  { label: "Revisi", value: "revised", color: "yellow" },
+  { label: "Resubmitted", value: "resubmitted" },
+];
 
 export default function VerifIzinList() {
-  const storedUser = localStorage.getItem("user");
-  const user = storedUser ? JSON.parse(storedUser) : null;
   const [izinList, setIzinList] = useState([]);
   const [filter, setFilter] = useState("all");
   const [showModal, setShowModal] = useState(false);
   const [selectedIzinId, setSelectedIzinId] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState();
   const [komentar, setKomentar] = useState("");
-
-  const STATUS_UI = [
-    { label: "Diterima", value: "accepted", color: "green" },
-    { label: "Ditolak", value: "rejected", color: "red" },
-    { label: "Revisi", value: "revised", color: "yellow" },
-  ];
 
   const fetch = async () => {
     const res = await api.get("/verif/izin");
@@ -32,7 +34,7 @@ export default function VerifIzinList() {
   };
 
   const submitStatus = async () => {
-    if (!komentar.trim()) return alert("Komentar wajib diisi");
+    if (!komentar.trim()) return toast("Komentar wajib diisi");
     try {
       await api.patch(`/verif/izin/${selectedIzinId}`, {
         status: selectedStatus,
@@ -41,40 +43,27 @@ export default function VerifIzinList() {
       setShowModal(false);
       fetch();
     } catch (err) {
-      alert(err.response?.data?.message || "Gagal mengubah status");
+      toast.error(err.response?.data?.message || "Gagal mengubah status");
     }
   };
 
   useEffect(() => {
     fetch();
-  }, []);
+  }, [selectedStatus]);
 
-  const filteredList = izinList.filter((izin) => {
-    return filter === "all" || izin.status === filter;
-  });
-
-  const inisial = user?.name?.charAt(0)?.toUpperCase() || "?";
+  const filteredList = izinList.filter((izin) =>
+    filter === "all" ? true : izin.status === filter
+  );
 
   return (
     <div className="min-h-screen py-8 px-4">
       <div className="max-w-3xl mx-auto">
         {/* Filter */}
-        <div className="mb-4">
-          <h2 className="text-xl font-bold mb-4">List Izin</h2>
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="w-full border rounded p-2 mb-4"
-          >
-            <option value="all">Semua</option>
-            <option value="submitted">Belum diproses</option>
-            {STATUS_UI.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <FilterTabs
+          options={STATUS_OPTION}
+          selected={filter}
+          onChange={setFilter}
+        />
 
         {/* List Izin */}
         <div className="space-y-4">
@@ -128,7 +117,9 @@ export default function VerifIzinList() {
 
               {/* Aksi */}
               <div className="flex flex-wrap gap-2">
-                {STATUS_UI.map((s) => (
+                {STATUS_OPTION.filter(
+                  (s) => s.value !== "resubmitted" && s.value !== "all"
+                ).map((s) => (
                   <button
                     key={s.value}
                     disabled={["accepted", "rejected"].includes(izin.status)}
@@ -138,7 +129,9 @@ export default function VerifIzinList() {
                         ? "bg-green-600 hover:bg-green-700"
                         : s.color === "red"
                         ? "bg-red-600 hover:bg-red-700"
-                        : "bg-yellow-500 hover:bg-yellow-600"
+                        : s.color === "yellow"
+                        ? "bg-yellow-500 hover:bg-yellow-600"
+                        : "bg-gray-400"
                     } disabled:opacity-40`}
                   >
                     {s.label}

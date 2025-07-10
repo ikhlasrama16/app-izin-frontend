@@ -1,23 +1,43 @@
 import { useState } from "react";
-import VerifIzinList from "../../components/VerifIzinList";
-import VerifUserList from "../../components/VerifUserList";
+import VerifIzinList from "../../components/verifikator/VerifIzinList";
+import VerifUserList from "../../components/verifikator/VerifUserList";
+import HeaderUser from "../../components/common/HeaderUser";
+import { useNavigate } from "react-router-dom";
 
 export default function VerifikatorDashboard({ user }) {
   const [activeTab, setActiveTab] = useState("user"); // 'user' | 'izin'
+  const navigate = useNavigate();
 
-  const inisial = user?.name?.charAt(0).toUpperCase() || "V";
+  const getRoleLabel = (role) => {
+    switch (role) {
+      case "admin":
+        return "Administrator";
+      case "verifikator":
+        return "Verifikator";
+      case "user":
+        return "Pengguna Biasa";
+      default:
+        return "Pengguna";
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen py-8 px-4">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
-        <div className="bg-white p-5 rounded-lg shadow flex justify-between items-center">
+        <div className="flex justify-between items-center mb-4">
           <h1 className="text-xl font-bold text-gray-800">
-            Hi, {user?.name || "Verifikator"}
+            Hi, {user?.name || "Pengguna"}
+            <span className="ml-2 text-sm text-gray-500 font-normal">
+              ({getRoleLabel(user?.role)})
+            </span>
           </h1>
-          <div className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-semibold uppercase">
-            {inisial}
-          </div>
+          <HeaderUser navigate={navigate} handleLogout={handleLogout} />
         </div>
 
         {/* Tab Menu */}

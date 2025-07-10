@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import api from "../services/api";
+import api from "../../services/api";
 import moment from "moment";
+import toast from "react-hot-toast";
 
 export default function EditIzinPage() {
   const { id } = useParams();
@@ -38,11 +39,11 @@ export default function EditIzinPage() {
     e.preventDefault();
 
     if (!izin.jenis || !izin.tanggalMulai || !izin.tanggalSelesai) {
-      return alert("Semua field wajib diisi");
+      return toast("Semua field wajib diisi");
     }
 
     if (moment(izin.tanggalMulai).isAfter(izin.tanggalSelesai)) {
-      return alert(
+      return toast(
         "Tanggal mulai tidak boleh lebih besar dari tanggal selesai"
       );
     }
@@ -55,11 +56,11 @@ export default function EditIzinPage() {
         keterangan: izin.keterangan,
       });
 
-      alert("Izin berhasil diperbarui");
+      toast.success("Izin berhasil diperbarui");
       navigate("/dashboard");
     } catch (err) {
       console.error(err.response?.data || err.message); // log detail
-      alert(err.response?.data?.message || "Gagal mengupdate izin");
+      toast.error(err.response?.data?.message || "Gagal mengupdate izin");
     }
   };
 

@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import moment from "moment";
 import "moment/locale/id";
+import toast from "react-hot-toast";
 moment.locale("id");
 
 export default function DetailIzinModal({ izin, onClose }) {
@@ -22,10 +23,10 @@ export default function DetailIzinModal({ izin, onClose }) {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      alert("Izin berhasil dibatalkan");
+      toast.success("Izin berhasil dibatalkan");
       onClose(true); // trigger refresh
     } catch (err) {
-      alert("Gagal membatalkan izin");
+      toast.error("Gagal membatalkan izin");
     }
   };
 
@@ -38,10 +39,10 @@ export default function DetailIzinModal({ izin, onClose }) {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      alert("Izin berhasil dihapus");
+      toast.success("Izin berhasil dihapus");
       onClose(true); // refresh list
     } catch (err) {
-      alert("Gagal menghapus izin");
+      toast.error("Gagal menghapus izin");
     }
   };
 

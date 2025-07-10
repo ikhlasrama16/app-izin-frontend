@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import api from "../services/api";
+import api from "../../services/api";
+import toast from "react-hot-toast";
 
 export default function MyIzinList() {
   const [izinList, setIzinlist] = useState([]);
@@ -48,7 +49,7 @@ export default function MyIzinList() {
                   <>
                     <button
                       className="text-blue-600 underline"
-                      onClick={() => alert("Belum buat form update 🚧")}
+                      onClick={() => toast("Belum buat form update 🚧")}
                     >
                       Update
                     </button>

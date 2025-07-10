@@ -1,19 +1,28 @@
 import { useEffect, useState } from "react";
-import api from "../services/api";
+import api from "../../services/api";
 import { FaCheckCircle, FaUserAlt } from "react-icons/fa";
+import FilterTabs from "../../components/common/FilterTabs";
+import toast from "react-hot-toast";
 
+const STATUS_OPTIONS = [
+  { label: "Semua status", value: "all" },
+  { label: "Verified", value: "verified" },
+  { label: "Unverified", value: "unverified" },
+];
 export default function VerifUserList() {
   const [userList, setUserList] = useState([]);
-  const [filter, setFilter] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
 
   const fetchUsers = async () => {
     try {
       const query =
-        filter === "all" ? "" : `?verified=${filter === "verified"}`;
+        selectedStatus === "all"
+          ? ""
+          : `?verified=${selectedStatus === "verified"}`;
       const res = await api.get(`/verif/users${query}`);
       setUserList(res.data);
     } catch (err) {
-      alert("Gagal mengambil data user");
+      toast.error("Gagal mengambil data user");
     }
   };
 
@@ -24,28 +33,23 @@ export default function VerifUserList() {
       });
       fetchUsers();
     } catch (err) {
-      alert("Gagal memverifikasi user");
+      toast.error("Gagal memverifikasi user");
     }
   };
 
   useEffect(() => {
     fetchUsers();
-  }, [filter]);
+  }, [selectedStatus]);
 
   return (
     <div className="min-h-screen py-8 px-4">
       <h2 className="text-xl font-bold mb-4">Daftar Pengguna</h2>
 
-      {/* Filter Dropdown */}
-      <select
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        className="w-full border rounded p-2 mb-4"
-      >
-        <option value="all">Semua</option>
-        <option value="verified">Terverifikasi</option>
-        <option value="unverified">Belum Terverifikasi</option>
-      </select>
+      <FilterTabs
+        options={STATUS_OPTIONS}
+        selected={selectedStatus}
+        onChange={setSelectedStatus}
+      />
 
       {/* List User */}
       <div className="space-y-4">

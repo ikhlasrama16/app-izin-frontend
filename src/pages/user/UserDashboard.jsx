@@ -3,10 +3,10 @@ import moment from "moment";
 import { HiCalendar, HiLocationMarker } from "react-icons/hi";
 import api from "../../services/api";
 import { statusColor, formatStatus } from "../../utils/status";
-import DetailIzinModal from "../../components/DetailIzinModal";
+import DetailIzinModal from "../../components/common/DetailIzinModal";
 import { HiChatBubbleLeft } from "react-icons/hi2";
 import { Link, useNavigate } from "react-router-dom";
-import HeaderUser from "../../components/HeaderUser";
+import HeaderUser from "../../components/common/HeaderUser";
 
 export default function UserDashboard({ user }) {
   const [izinList, setIzinList] = useState([]);
@@ -16,11 +16,25 @@ export default function UserDashboard({ user }) {
     const res = await api.get("/izin");
     setIzinList(res.data);
   };
+
+  const getRoleLabel = (role) => {
+    switch (role) {
+      case "admin":
+        return "Administrator";
+      case "verifikator":
+        return "Verifikator";
+      case "user":
+        return "Pengguna Biasa";
+      default:
+        return "Pengguna";
+    }
+  };
+
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); // hapus token
-    navigate("/login"); // kembali ke halaman login
+    localStorage.removeItem("token");
+    navigate("/login");
   };
 
   useEffect(() => {
@@ -32,7 +46,12 @@ export default function UserDashboard({ user }) {
       <div className="max-w-2xl w-full space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Hi, {user.name}</h2>
+          <h1 className="text-xl font-bold text-gray-800">
+            Hi, {user?.name || "Pengguna"}
+            <span className="ml-2 text-sm text-gray-500 font-normal">
+              ({getRoleLabel(user?.role)})
+            </span>
+          </h1>
           <HeaderUser navigate={navigate} handleLogout={handleLogout} />
         </div>
         {/* Tombol Ajukan */}
