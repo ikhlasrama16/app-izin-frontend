@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AdminUserList from "../../components/admin/AdminUserList";
 import AdminIzinList from "../../components/admin/AdminIzinList";
-import api from "../../services/api";
 import { Link, useNavigate } from "react-router-dom";
 import HeaderUser from "../../components/common/HeaderUser";
+import useFetch from "../../hooks/useFetch";
 
 export default function AdminDashboard({ user }) {
-  const [izinList, setIzinList] = useState([]);
-  const [activeTab, setActiveTab] = useState("user"); // 'user' | 'izin'
+  const { data: izinList, loading, error, refetch } = useFetch("/admin/izin");
+  const [activeTab, setActiveTab] = useState("user");
   const navigate = useNavigate();
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Gagal memuat data</p>;
 
   const getRoleLabel = (role) => {
     switch (role) {
@@ -27,19 +30,6 @@ export default function AdminDashboard({ user }) {
     localStorage.removeItem("token"); // hapus token
     navigate("/login"); // kembali ke halaman login
   };
-
-  useEffect(() => {
-    const fetchIzin = async () => {
-      try {
-        const res = await api.get("/admin/izin");
-        setIzinList(res.data); // ✅ Set data ke state
-      } catch (err) {
-        console.error("Gagal mengambil data izin", err);
-      }
-    };
-
-    fetchIzin();
-  }, []);
 
   return (
     <div className="bg-gray-50 min-h-screen py-8 px-4">

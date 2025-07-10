@@ -1,21 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import moment from "moment";
-import { HiCalendar, HiLocationMarker } from "react-icons/hi";
-import api from "../../services/api";
+import { HiCalendar } from "react-icons/hi";
 import { statusColor, formatStatus } from "../../utils/status";
 import DetailIzinModal from "../../components/common/DetailIzinModal";
 import { HiChatBubbleLeft } from "react-icons/hi2";
 import { Link, useNavigate } from "react-router-dom";
 import HeaderUser from "../../components/common/HeaderUser";
+import useFetch from "../../hooks/useFetch";
 
 export default function UserDashboard({ user }) {
-  const [izinList, setIzinList] = useState([]);
+  const { data: izinList, loading, error, refetch } = useFetch("/izin");
   const [selectedIzin, setSelectedIzin] = useState(null);
-
-  const fetchIzin = async () => {
-    const res = await api.get("/izin");
-    setIzinList(res.data);
-  };
 
   const getRoleLabel = (role) => {
     switch (role) {
@@ -37,10 +32,8 @@ export default function UserDashboard({ user }) {
     navigate("/login");
   };
 
-  useEffect(() => {
-    fetchIzin();
-  }, []);
-
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Gagal memuat data</p>;
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4 flex justify-center">
       <div className="max-w-2xl w-full space-y-6">
@@ -54,6 +47,7 @@ export default function UserDashboard({ user }) {
           </h1>
           <HeaderUser navigate={navigate} handleLogout={handleLogout} />
         </div>
+
         {/* Tombol Ajukan */}
         <div className="flex justify-end">
           {user?.isVerified ? (

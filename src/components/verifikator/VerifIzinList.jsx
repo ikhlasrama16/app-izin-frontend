@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import api from "../../services/api";
 import moment from "moment";
 import { HiCalendar, HiOutlineChat } from "react-icons/hi";
 import FilterTabs from "../../components/common/FilterTabs";
 import toast from "react-hot-toast";
+import useFetch from "../../hooks/useFetch";
 
 const STATUS_OPTION = [
   { label: "Semua", value: "all" },
@@ -14,17 +15,15 @@ const STATUS_OPTION = [
 ];
 
 export default function VerifIzinList() {
-  const [izinList, setIzinList] = useState([]);
+  const { data: izinList, loading, error, refetch } = useFetch("/verif/izin");
   const [filter, setFilter] = useState("all");
   const [showModal, setShowModal] = useState(false);
   const [selectedIzinId, setSelectedIzinId] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState();
   const [komentar, setKomentar] = useState("");
 
-  const fetch = async () => {
-    const res = await api.get("/verif/izin");
-    setIzinList(res.data);
-  };
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Gagal memuat data</p>;
 
   const handleStatus = (id, status) => {
     setSelectedIzinId(id);
@@ -46,10 +45,6 @@ export default function VerifIzinList() {
       toast.error(err.response?.data?.message || "Gagal mengubah status");
     }
   };
-
-  useEffect(() => {
-    fetch();
-  }, [selectedStatus]);
 
   const filteredList = izinList.filter((izin) =>
     filter === "all" ? true : izin.status === filter
