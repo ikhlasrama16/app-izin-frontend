@@ -41,7 +41,7 @@ export default function VerifIzinList() {
         komentar,
       });
       setShowModal(false);
-      fetch();
+      refetch();
     } catch (err) {
       showError(err.response?.data?.message || "Gagal mengubah status");
     }
